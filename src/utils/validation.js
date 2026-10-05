@@ -4,9 +4,10 @@ export const validateLogin = (email, password) => {
   if (!email.trim()) {
     errors.email = 'Email is required'
   } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email.trim())) {
       errors.email = 'Please enter a valid email address'
     }
   }
@@ -14,7 +15,8 @@ export const validateLogin = (email, password) => {
   if (!password) {
     errors.password = 'Password is required'
   } else if (password.length < 6) {
-    errors.password = 'Password must be at least 6 characters'
+    errors.password =
+      'Password must be at least 6 characters'
   }
 
   return errors
