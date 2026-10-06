@@ -7,13 +7,14 @@ import {
 
 import Login from './pages/Login'
 import Home from './pages/Home'
+import NotFound from './pages/NotFound'
 import ProtectedRoute from './routes/ProtectedRoute'
+import PublicOnlyRoute from './routes/PublicOnlyRoute'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         <Route
           path="/"
           element={
@@ -26,7 +27,11 @@ function App() {
 
         <Route
           path="/login"
-          element={<Login />}
+          element={
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          }
         />
 
         <Route
@@ -38,6 +43,10 @@ function App() {
           }
         />
 
+        <Route
+          path="*"
+          element={<NotFound />}
+        />
       </Routes>
     </BrowserRouter>
   )

@@ -21,7 +21,7 @@ export const foodItems = [
     price: 10.02,
     category: 'Chicken Chop',
     image:
-      'https://images.unsplash.com/photo-1563379091339-03246963d96c?auto=format&fit=crop&w=900&q=85',
+      'https://images.unsplash.com/photo-1596797038530-2c107229654b?auto=format&fit=crop&w=900&q=85',
   },
   {
     id: 3,
@@ -70,5 +70,21 @@ export const foodItems = [
     category: 'Burger',
     image:
       'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    id: 9,
+    name: 'Margherita Pizza',
+    price: 9.40,
+    category: 'Pizza',
+    image:
+      'https://images.unsplash.com/photo-1579751626657-72bc17010498?auto=format&fit=crop&w=900&q=85',
+  },
+  {
+    id: 10,
+    name: 'Chicken Tikka Pizza',
+    price: 11.75,
+    category: 'Pizza',
+    image:
+      'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=900&q=85',
   },
 ]

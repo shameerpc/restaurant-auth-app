@@ -1,112 +1,280 @@
-import { useMemo, useState } from 'react'
-import { ShoppingCart } from 'lucide-react'
+import {
+  useMemo,
+  useState,
+} from 'react'
+import {
+  ShoppingCart,
+  SearchX,
+} from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 import {
   categories,
   foodItems,
 } from '../data/foodData'
+import { useAuth } from '../context/AuthContext'
 
-import RestaurantHeader from '../components/RestaurantHeader'
-import PromoBanner from '../components/PromoBanner'
+import AccountPanel from '../components/AccountPanel'
+import BottomNavigation from '../components/BottomNavigation'
+import CartPanel from '../components/CartPanel'
 import CategoryTabs from '../components/CategoryTabs'
 import FoodCard from '../components/FoodCard'
-import BottomNavigation from '../components/BottomNavigation'
+import PromoBanner from '../components/PromoBanner'
+import RestaurantHeader from '../components/RestaurantHeader'
+import SearchBar from '../components/SearchBar'
+import Sheet from '../components/Sheet'
+
+const ALL_CATEGORIES = 'For You'
+const DEFAULT_CATEGORY = 'Chicken Chop'
 
 function Home() {
-  const [activeCategory, setActiveCategory] = useState('Chicken Chop')
-  const [cart, setCart] = useState([])
+  const navigate = useNavigate()
+  const { user, logout } = useAuth()
 
-  // Fix 1: Added foodItems to dependency array to prevent React hooks linting errors
-  const filteredFoods = useMemo(() => {
-    if (activeCategory === 'For You') {
+  const [activeCategory, setActiveCategory] = useState(DEFAULT_CATEGORY)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [cart, setCart] = useState([])
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false)
+  const [isAccountOpen, setIsAccountOpen] = useState(false)
+
+  const visibleFoodItems = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase()
+
+    // An active search looks across every category so results are
+    // never hidden by whichever tab happens to be selected.
+    if (normalizedQuery) {
+      return foodItems.filter((item) =>
+        item.name.toLowerCase().includes(normalizedQuery),
+      )
+    }
+
+    if (activeCategory === ALL_CATEGORIES) {
       return foodItems
     }
-    return foodItems.filter((item) => item.category === activeCategory)
-  }, [activeCategory, foodItems])
 
-  // Fix 2: Improved cart logic to handle quantities instead of duplicate objects
-  const handleAddToCart = (itemToAdd) => {
+    return foodItems.filter(
+      (item) => item.category === activeCategory,
+    )
+  }, [activeCategory, searchQuery])
+
+  const addToCart = (itemToAdd) => {
     setCart((previousCart) => {
-      const existingItem = previousCart.find((item) => item.id === itemToAdd.id)
-      
+      const existingItem = previousCart.find(
+        (item) => item.id === itemToAdd.id,
+      )
+
       if (existingItem) {
-        // If item is already in cart, increase its quantity
         return previousCart.map((item) =>
           item.id === itemToAdd.id
             ? { ...item, quantity: item.quantity + 1 }
-            : item
+            : item,
         )
       }
-      
-      // If item is new, add it to cart with quantity 1
-      return [...previousCart, { ...itemToAdd, quantity: 1 }]
+
+      return [
+        ...previousCart,
+        { ...itemToAdd, quantity: 1 },
+      ]
     })
   }
 
-  // Fix 3: Calculate total items in cart properly based on quantity
-  const totalCartItems = cart.reduce((total, item) => total + item.quantity, 0)
+  const decrementCartItem = (cartItem) => {
+    setCart((previousCart) =>
+      previousCart
+        .map((item) =>
+          item.id === cartItem.id
+            ? {
+                ...item,
+                quantity: item.quantity - 1,
+              }
+            : item,
+        )
+        .filter((item) => item.quantity > 0),
+    )
+  }
+
+  const clearCart = () => setCart([])
+
+  const handleLogout = () => {
+    setIsAccountOpen(false)
+    setCart([])
+    logout()
+    navigate('/login')
+  }
+
+  const handleToggleSearch = () => {
+    setIsSearchOpen((previousIsOpen) => !previousIsOpen)
+
+    if (isSearchOpen) {
+      setSearchQuery('')
+    }
+  }
+
+  const totalCartItems = cart.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  )
+
+  const hasSearchQuery = searchQuery.trim().length > 0
 
   return (
-    <div className="min-h-screen bg-[#f8f8f8] pb-[120px]">
-      
-      {/* Header */}
-      <RestaurantHeader />
+    <div className="min-h-screen bg-[#f8f8f8] pb-[83px]">
+      <RestaurantHeader
+        isSearchOpen={isSearchOpen}
+        onToggleSearch={handleToggleSearch}
+      />
 
-      {/* Promotional Banner */}
+      {isSearchOpen && (
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+        />
+      )}
+
       <PromoBanner />
 
-      {/* Categories */}
       <CategoryTabs
         categories={categories}
         activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
+        onCategoryChange={(category) => {
+          setSearchQuery('')
+          setActiveCategory(category)
+        }}
       />
 
-      {/* Food */}
       <main className="mx-auto max-w-[1200px] px-5 py-8 sm:px-8 lg:py-10">
-        {filteredFoods.length > 0 ? (
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredFoods.map((item) => (
+        {visibleFoodItems.length > 0 ? (
+          <div className="grid grid-cols-2 gap-5 lg:grid-cols-3 xl:grid-cols-4">
+            {visibleFoodItems.map((item) => (
               <FoodCard
                 key={item.id}
                 item={item}
-                onAdd={handleAddToCart}
+                onAdd={addToCart}
               />
             ))}
           </div>
         ) : (
           <div className="rounded-2xl bg-white py-20 text-center">
-            <p className="text-lg font-semibold">
-              No items available
-            </p>
+            {hasSearchQuery ? (
+              <>
+                <SearchX
+                  size={40}
+                  className="mx-auto text-gray-300"
+                />
+
+                <p className="mt-4 text-lg font-semibold text-gray-800">
+                  No dishes match your search
+                </p>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Try a different dish name.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-lg font-semibold text-gray-800">
+                  No items available
+                </p>
+
+                <p className="mt-1 text-sm text-gray-500">
+                  Please check back soon.
+                </p>
+              </>
+            )}
           </div>
         )}
       </main>
 
+      {/* Footer */}
+      <footer className="border-t border-gray-100 bg-white py-4 text-center text-xs font-medium text-gray-400">
+        Powered By Hush Lush
+      </footer>
+
       {/* Floating cart */}
-      {/* Fix 4: Changed bg color to a darker, more standard app color to match UI conventions */}
       {totalCartItems > 0 && (
         <button
           type="button"
-          aria-label="Open shopping cart"
-          className="fixed bottom-[105px] right-5 z-40 flex h-[64px] w-[64px] items-center justify-center rounded-full bg-gray-900 text-white shadow-xl transition-all hover:scale-105 active:scale-90 sm:right-8"
+          onClick={() => setIsCartOpen(true)}
+          aria-label="Open cart"
+          className="
+            fixed
+            bottom-[103px]
+            right-5
+            z-40
+            flex
+            h-[64px]
+            w-[64px]
+            cursor-pointer
+            items-center
+            justify-center
+            rounded-full
+            bg-gray-900
+            text-white
+            shadow-xl
+            transition-all
+            hover:scale-105
+            active:scale-90
+            sm:right-8
+          "
         >
-          <ShoppingCart size={31} strokeWidth={1.7} />
+          <ShoppingCart
+            size={31}
+            strokeWidth={1.7}
+          />
 
-          <span className="absolute right-0 top-0 flex h-6 min-w-6 items-center justify-center rounded-full bg-[#ed1717] px-1 text-xs font-bold">
+          <span
+            aria-hidden="true"
+            className="
+              absolute
+              right-0
+              top-0
+              flex
+              h-6
+              min-w-6
+              items-center
+              justify-center
+              rounded-full
+              bg-[#ed1717]
+              px-1
+              text-xs
+              font-bold
+            "
+          >
             {totalCartItems}
+          </span>
+
+          <span className="sr-only">
+            {totalCartItems} items in cart
           </span>
         </button>
       )}
 
-      {/* Bottom navigation */}
-      <BottomNavigation />
-      
-      {/* Fix 5: Added the "Powered By" footer to match the screenshot */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm py-2 text-center text-xs text-gray-400 z-30">
-        Powered By Hush Lush
-      </div>
-      
+      <BottomNavigation onOpenAccount={() => setIsAccountOpen(true)} />
+
+      <Sheet
+        isOpen={isCartOpen}
+        title={`Your Cart (${totalCartItems})`}
+        onClose={() => setIsCartOpen(false)}
+      >
+        <CartPanel
+          items={cart}
+          onIncrement={addToCart}
+          onDecrement={decrementCartItem}
+          onClear={clearCart}
+        />
+      </Sheet>
+
+      <Sheet
+        isOpen={isAccountOpen}
+        title="Account"
+        onClose={() => setIsAccountOpen(false)}
+      >
+        <AccountPanel
+          user={user}
+          onLogout={handleLogout}
+        />
+      </Sheet>
     </div>
   )
 }

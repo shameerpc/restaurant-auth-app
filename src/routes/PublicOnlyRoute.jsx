@@ -3,7 +3,11 @@ import { Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import FullScreenLoader from '../components/FullScreenLoader'
 
-function ProtectedRoute({ children }) {
+/**
+ * Keeps signed-in users away from the login screen so they are always
+ * redirected to the restaurant menu.
+ */
+function PublicOnlyRoute({ children }) {
   const {
     isAuthenticated,
     isLoading,
@@ -15,10 +19,10 @@ function ProtectedRoute({ children }) {
     )
   }
 
-  if (!isAuthenticated) {
+  if (isAuthenticated) {
     return (
       <Navigate
-        to="/login"
+        to="/home"
         replace
       />
     )
@@ -27,4 +31,4 @@ function ProtectedRoute({ children }) {
   return children
 }
 
-export default ProtectedRoute
+export default PublicOnlyRoute

@@ -1,7 +1,11 @@
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
+
 import logo from '../assets/hush-lush-logo.png'
 
-function RestaurantHeader() {
+function RestaurantHeader({
+  isSearchOpen,
+  onToggleSearch,
+}) {
   return (
     <header
       className="
@@ -20,12 +24,13 @@ function RestaurantHeader() {
         lg:px-10
       "
     >
-      {/* Restaurant Logo */}
+      {/* Restaurant logo */}
       <div
         className="
           flex
           h-[62px]
           w-[62px]
+          shrink-0
           items-center
           justify-center
           overflow-hidden
@@ -59,14 +64,17 @@ function RestaurantHeader() {
         Table 13 (4 PAX)
       </h1>
 
-      {/* Search */}
+      {/* Search toggle */}
       <button
         type="button"
-        aria-label="Search"
+        onClick={onToggleSearch}
+        aria-label={isSearchOpen ? 'Close search' : 'Search'}
+        aria-expanded={isSearchOpen}
         className="
           flex
           h-11
           w-11
+          shrink-0
           items-center
           justify-center
           rounded-full
@@ -75,10 +83,11 @@ function RestaurantHeader() {
           active:scale-95
         "
       >
-        <Search
-          size={34}
-          strokeWidth={1.7}
-        />
+        {isSearchOpen ? (
+          <X size={30} strokeWidth={1.7} />
+        ) : (
+          <Search size={30} strokeWidth={1.7} />
+        )}
       </button>
     </header>
   )
