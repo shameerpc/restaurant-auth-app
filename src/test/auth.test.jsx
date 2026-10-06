@@ -179,7 +179,7 @@ describe('Authentication', () => {
     expect(
       await screen.findByRole(
         'heading',
-        { name: 'Table 13 (4 PAX)' },
+        { name: 'Welcome to Hush Lush' },
         { timeout: LOGIN_TIMEOUT },
       ),
     ).toBeInTheDocument()
@@ -199,7 +199,7 @@ describe('Authentication', () => {
     expect(
       await screen.findByRole(
         'heading',
-        { name: 'Table 13 (4 PAX)' },
+        { name: 'Welcome to Hush Lush' },
         { timeout: LOGIN_TIMEOUT },
       ),
     ).toBeInTheDocument()
@@ -248,7 +248,7 @@ describe('Guest access', () => {
     expect(
       await screen.findByRole(
         'heading',
-        { name: 'Table 13 (4 PAX)' },
+        { name: 'Welcome to Hush Lush' },
         { timeout: LOGIN_TIMEOUT },
       ),
     ).toBeInTheDocument()
@@ -278,7 +278,7 @@ describe('Route protection', () => {
     expect(
       await screen.findByRole(
         'heading',
-        { name: 'Table 13 (4 PAX)' },
+        { name: 'Welcome to Hush Lush' },
       ),
     ).toBeInTheDocument()
   })

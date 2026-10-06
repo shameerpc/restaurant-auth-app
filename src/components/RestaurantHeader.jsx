@@ -59,9 +59,10 @@ function RestaurantHeader({
           font-bold
           text-[#202020]
           sm:text-[24px]
+          max-[380px]:text-[17px]
         "
       >
-        Table 13 (4 PAX)
+        Welcome to Hush Lush
       </h1>
 
       {/* Search toggle */}
